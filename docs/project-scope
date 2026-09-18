@@ -10,7 +10,7 @@ Extend VulnLab into a reproducible cloud security and DevSecOps
 case study, demonstrating deployment, access control, detection,
 and recovery.
 
-Vulnlab Source: https://github.com/setzexe/VulnLab
+- [VulnLab Base App]([docs/project-scope.md](https://github.com/setzexe/VulnLab))
 
 ## v1.0 scope
 
