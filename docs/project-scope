@@ -1,0 +1,59 @@
+# Project scope
+
+## Client request
+
+Deploy our application (VulnLab) to AWS with restricted access, repeatable updates, monitoring, and recovery.
+
+## Purpose
+
+Extend VulnLab into a reproducible cloud security and DevSecOps
+case study, demonstrating deployment, access control, detection,
+and recovery.
+
+Vulnlab Source: https://github.com/setzexe/VulnLab
+
+## v1.0 scope
+
+- One AWS region (us-east-1)
+- Linux EC2 instance running the remediated VulnLab app.
+- Terraform managed infrastructure, networking, and permissions.
+- Restricted admin and application access.
+- SQLite storage containing (fictional) demo data.
+- Runtime secrets supplied separately from source code and images.
+- Automated infrastructure and application security checks.
+- GitHub Actions deployment with temporary AWS credentials.
+- Deployment of an identifiable, approved application image.
+- Application security logs, AWS activity review, and one tested alert.
+- IAM and network boundary verification.
+- Tested rollback and database backup/restore.
+- Rebuild instructions, sanitized evidence, and verified teardown.
+
+## Out of scope
+
+- Access to the intentionally vulnerable application.
+- Real users, data, or production availability.
+- Multiple clouds and high availability.
+- A permanent public demonstration environment.
+
+## Security + cost boundaries
+
+- Test only resources I own / am authorized to test.
+- Vulnerable version stays local only.
+- Review the remediated version before deployment.
+- Use separate identities with minimal permissions.
+- Keep Terraform state and sensitive information out of Git.
+- Use AWS Free plan.
+- Create billing notifications.
+- Document cleanup before creating resources.
+
+## What makes this project done?
+
+- Recreate the environment from documents and code.
+- Deploy the identified app version with automated checks.
+- Showcase that a failing security or regression check blocks deployment.
+- Show that an expected IAM action succeeds and an unrelated action is denied.
+- Trigger an application security alert and explain its cooresponding logs.
+- Recover from an unhealthy release and record recovery time.
+- Restore a database backup and verify the demo data.
+- Publish sanitized evidence and reproducible instructions.
+- Remove cloud resources and verify cleanup.
