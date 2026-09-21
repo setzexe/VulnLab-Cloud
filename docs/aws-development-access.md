@@ -72,3 +72,14 @@ aws iam list-users --profile vulnlab-dev
 
 Result: `AccessDenied`. No identity based policy allowed
 `iam:ListUsers`. This is the wanted result for the configured permissions.
+
+## Cost controls
+
+- Account plan: Free plan; $100 in credits.
+- Plan expiration: March 27, 2027.
+- Budget: `vulnlab-monthly-usage`.
+- Scope: entire account.
+- Monthly reference amount: $5.
+- Cost for email alerts & limits: $1 and $5.
+
+The budget provides notifications but does not enforce a spending cap. Actual spending for the project will remain zero.
