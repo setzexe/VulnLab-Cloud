@@ -27,19 +27,15 @@ Access the workflow at `.github/workflows/infrastructure.yml`
 
 ## Verification table
 
-| Scenario | Expected result | Observed result |
+| Scenario | Observed result | Evidence |
 | --- | --- | --- |
-| Undeclared variable reference | Terraform validation fails | Terraform validation fails |
-| SSH allowed from any IPv4 address | Security scan fails | Security scan fails |
-| Demonstration faults removed | Both jobs pass | Both jobs pass |
+| Undeclared variable (local test) | Terraform validation rejects reference | Terminal output recorded during Card 3 |
+| Formatting fault in CI | Formatting check failed; validation skipped | [Failed formatting run](https://github.com/setzexe/VulnLab-Cloud/actions/runs/35772834856) |
+| Public SSH configuration | Terraform checks passed; Trivy rejected unrestricted ingress with AWS-0107 (HIGH) | [Security rejection](https://github.com/setzexe/VulnLab-Cloud/actions/runs/35773059386) |
+| Temporary faults removed | Both jobs passed | [Passing run](https://github.com/setzexe/VulnLab-Cloud/actions/runs/35773774249) |
 
 All tests for verification were removed prior to deployment.
 
-## Limitations
+## Merge requirements
 
-Validation does not prove that AWS permissions or deployment will work.
-Security scanning identifies known configuration problems, not every risk.
-The security failure threshold is HIGH and CRITICAL.
-
-Failed checks only block merging when repository rules require them.
-No deployment workflow exists yet.
+The active `protect-main` ruleset requires a pull request and passing `Terraform checks` and `Infrastructure security` checks. The branch must be up to date before merging.

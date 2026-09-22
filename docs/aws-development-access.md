@@ -25,7 +25,7 @@ All credentials and login caches remain outside the repository. This command sho
 ## Initial permissions
 
 - `SignInLocalDevelopmentAccess`: allows CLI authentication from a browser.
-- `VulnLabInitialInspection`: allows `ec2:DescribeVpcs` in `us-east-1` is the region requests are coming from.
+- `VulnLabInitialInspection`: allows `ec2:DescribeVpcs` when the requested AWS region is `us-east-1`.
 
 Vulnlab-dev has no billing or creation permissions. This explains why the console cost and usage widgets display `Access denied`.
 
