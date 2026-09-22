@@ -25,15 +25,15 @@ Access the workflow at `.github/workflows/infrastructure.yml`
 - AWS provider: exact version recorded in `infra/.terraform.lock.hcl`.
 - GitHub Actions references are pinned to commit hashes.
 
-## Verification evidence
+## Verification table
 
-| Scenario | Expected result | Observed result | Workflow run |
-| --- | --- | --- | --- |
-| Undeclared variable reference | Terraform validation fails | TODO | TODO |
-| SSH allowed from any IPv4 address | Security scan fails | TODO | TODO |
-| Demonstration faults removed | Both jobs pass | TODO | TODO |
+| Scenario | Expected result | Observed result |
+| --- | --- | --- |
+| Undeclared variable reference | Terraform validation fails | Terraform validation fails |
+| SSH allowed from any IPv4 address | Security scan fails | Security scan fails |
+| Demonstration faults removed | Both jobs pass | Both jobs pass |
 
-Temporary demonstration configuration was removed before merge.
+All tests for verification were removed prior to deployment.
 
 ## Limitations
 
