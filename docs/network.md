@@ -46,8 +46,16 @@ Review and document teardown before the first apply.
 
 ## Verification
 
-Pending:
+When this lab is finished, run to review removal:
 
-- Terraform formatting + validation.
-- Infrastructure security scan with review of findings.
-- AWS plan review.
+```bash
+AWS_PROFILE=vulnlab-dev terraform -chdir=infra plan -destroy 
+```
+
+Run to remove the resources:
+
+```bash
+AWS_PROFILE=vulnlab-dev terraform -chdir=infra destroy
+```
+
+Keep the local Terraform state until cleanup is complete.
