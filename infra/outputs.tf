@@ -12,3 +12,8 @@ output "host_security_group_id" {
   description = "Security group for VulnLab host"
   value       = aws_security_group.host.id
 }
+
+output "host_instance_id" {
+  description = "EC2 instance ID for Systems Manager sessions"
+  value       = aws_instance.host.id
+}
