@@ -25,6 +25,17 @@ The future build will receive a configured public IPv4 address for outbound inte
 
 Outbound HTTPS permits any IPv4 destination. The design uses one subnet and does not provide high availability.
 
+## Reviewed security finding
+
+Trivy reported AWS-0104 (CRITICAL) because the host security group
+allows outbound TCP 443 to any IPv4 address.
+
+We ignore this error for this temporary, single host lab. The future host needs outbound HTTPS for Systems Manager and application
+delivery. The no inbound rules boundary remains in place. An attacker who gains access to the host could still send data to a different HTTPS destination.
+
+The exception is attached only to the HTTPS egress resource in
+`infra/security.tf`. We will reassess the rule when the host's actual connectivity requirements are tested in Card 5.
+
 ## Cost and lifecycle
 
 This configuration contains no EC2 instance, public IPv4 allocation,
