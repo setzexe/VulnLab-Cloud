@@ -1,0 +1,58 @@
+name: vulnlab
+
+services:
+  vulnlab:
+    image: ${VULNLAB_IMAGE:?Set VULNLAB_IMAGE}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5000:5000"
+    env_file:
+      - /etc/vulnlab/runtime.env
+    environment:
+      VULNLAB_RATELIMIT_STORAGE_URI: redis://redis:6379/0
+    volumes:
+      - vulnlab-data:/app/instance
+    depends_on:
+      redis:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: ${VULNLAB_REDIS_IMAGE:?Set VULNLAB_REDIS_IMAGE}
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  vulnlab-data:
+  redis-data:

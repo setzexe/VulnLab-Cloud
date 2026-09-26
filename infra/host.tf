@@ -54,7 +54,10 @@ resource "aws_instance" "host" {
   }
 
   lifecycle {
-    ignore_changes = [ami]
+    ignore_changes = [
+      ami,
+      associate_public_ip_address,
+    ]
   }
 
   depends_on = [aws_iam_role_policy_attachment.ssm]

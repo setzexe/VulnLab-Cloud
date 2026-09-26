@@ -17,3 +17,8 @@ output "host_instance_id" {
   description = "EC2 instance ID for Systems Manager sessions"
   value       = aws_instance.host.id
 }
+
+output "app_repository_url" {
+  description = "Private ECR repository for application"
+  value       = aws_ecr_repository.app.repository_url
+}
