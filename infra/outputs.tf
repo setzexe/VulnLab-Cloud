@@ -27,3 +27,13 @@ output "github_deploy_role_arn" {
   description = "IAM role assumed by the GitHub deployment workflow"
   value       = aws_iam_role.github_deploy.arn
 }
+
+output "deployment_document_name" {
+  description = "SSM document used for application deployment"
+  value       = aws_ssm_document.deploy.name
+}
+
+output "deployment_document_version" {
+  description = "Current deployment document version"
+  value       = aws_ssm_document.deploy.latest_version
+}
