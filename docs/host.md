@@ -88,9 +88,7 @@ aws ec2 start-instances --instance-ids "$HOST_ID" \
 
 Read HOST_ID from Terraform again if using a new terminal. The instance may get a different public IPv4 address after starting.
 
-The ECR repository must be emptied before Terraform can delete it because
-force_delete is disabled. Preserve any required images and application
-data before final teardown.
+The ECR repository must be emptied before Terraform can delete it because `force_delete` is disabled. Preserve any required images and application data before final teardown.
 
 For final teardown (this destroys most essentials including project network, root disk, etc), run:
 
