@@ -1,0 +1,107 @@
+schemaVersion: "2.2"
+description: Deploy a VulnLab application image by digest
+
+parameters:
+  ImageDigest:
+    type: String
+    description: SHA-256 digest of the application image in VulnLab ECR
+    allowedPattern: "^sha256:[0-9a-f]{64}$"
+    interpolationType: ENV_VAR
+
+mainSteps:
+  - action: aws:runShellScript
+    name: deployApplication
+    precondition:
+      StringEquals:
+        - platformType
+        - Linux
+    inputs:
+      timeoutSeconds: "600"
+      runCommand:
+        - |
+          /bin/bash <<'BASH'
+          set -euo pipefail
+          export AWS_PAGER=""
+
+          : "${SSM_ImageDigest:?SSM must provide ImageDigest as an environment variable}"
+
+          if [[ ! "$SSM_ImageDigest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "Invalid application digest!"
+            exit 1
+          fi
+
+          cd /opt/vulnlab
+
+          exec 9>/var/lock/vulnlab-deploy.lock
+          flock -n 9 || {
+            echo "Another deployment is already running!
+            exit 1
+          }
+
+          test -s compose.yaml
+          test -s release.env
+          test -s /etc/vulnlab/runtime.env
+
+          REGISTRY="492767006448.dkr.ecr.us-east-1.amazonaws.com"
+          APP_IMAGE="$REGISTRY/vulnlab@$SSM_ImageDigest"
+
+          REDIS_IMAGE=$(sed -n 's/^VULNLAB_REDIS_IMAGE=//p' release.env)
+
+          if [[ ! "$REDIS_IMAGE" =~ ^redis@sha256:[0-9a-f]{64}$ ]]; then
+            echo "Expected the existing Redis image to be pinned by digest."
+            exit 1
+          fi
+
+          CANDIDATE=$(mktemp /opt/vulnlab/release-candidate.XXXXXX)
+
+          cleanup() {
+            rm -f "$CANDIDATE"
+            docker logout "$REGISTRY" >/dev/null 2>&1 || true
+          }
+
+          trap cleanup EXIT
+
+          aws ecr get-login-password --region us-east-1 \
+            | docker login --username AWS --password-stdin "$REGISTRY"
+
+          docker pull "$APP_IMAGE"
+
+          PLATFORM=$(docker image inspect "$APP_IMAGE" \
+            --format '{{.Os}}/{{.Architecture}}')
+
+          test "$PLATFORM" = "linux/amd64"
+
+          printf 'VULNLAB_IMAGE=%s\nVULNLAB_REDIS_IMAGE=%s\n' \
+            "$APP_IMAGE" "$REDIS_IMAGE" > "$CANDIDATE"
+
+          start_release() {
+            docker compose -f /opt/vulnlab/compose.yaml \
+              --env-file "$1" \
+              up -d --pull never --wait --wait-timeout 120
+          }
+
+          verify_release() {
+            curl --fail --silent --show-error --max-time 10 \
+              http://127.0.0.1:5000/health \
+            && docker compose -f /opt/vulnlab/compose.yaml \
+              --env-file "$1" exec -T vulnlab \
+              python -c 'import os, redis; client = redis.Redis.from_url(os.environ["VULNLAB_RATELIMIT_STORAGE_URI"], socket_connect_timeout=5, socket_timeout=5); assert client.ping(); print("Redis reachable")'
+          }
+
+          if start_release "$CANDIDATE" && verify_release "$CANDIDATE"; then
+            cp release.env release.previous.env
+            chmod 0644 "$CANDIDATE"
+            mv "$CANDIDATE" release.env
+            echo "Deployment succeeded: $APP_IMAGE"
+          else
+            echo "Deployment failed. Attempting the previous release."
+
+            if start_release release.env && verify_release release.env; then
+              echo "Previous release restored."
+            else
+              echo "Previous release could not be verified. Inspect the host."
+            fi
+
+            exit 1
+          fi
+          BASH
