@@ -22,3 +22,8 @@ output "app_repository_url" {
   description = "Private ECR repository for application"
   value       = aws_ecr_repository.app.repository_url
 }
+
+output "github_deploy_role_arn" {
+  description = "IAM role assumed by the GitHub deployment workflow"
+  value       = aws_iam_role.github_deploy.arn
+}
