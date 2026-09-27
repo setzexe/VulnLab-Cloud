@@ -34,7 +34,7 @@ mainSteps:
 
           exec 9>/var/lock/vulnlab-deploy.lock
           flock -n 9 || {
-            echo "Another deployment is already running!
+            echo "Another deployment is already running!"
             exit 1
           }
 
