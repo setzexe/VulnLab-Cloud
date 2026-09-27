@@ -2,8 +2,10 @@
 
 ## Status
 
-Terraform successfully creates the EC2 host in us-east-1. Application deployment is planned for a later card.
-Only the remediated VulnLab application will be deployed.
+Terraform manages the EC2 host in us-east-1. The remediated VulnLab
+application is deployed using Docker Compose.
+
+Check out [Manual application deployment](deployment.md) for the release, verification, access, and persistence details.
 
 ## Design
 
@@ -26,6 +28,8 @@ The vulnlab-host-ssm IAM role trusts EC2 and has the
 AmazonSSMManagedInstanceCore policy attached. The vulnlab-host instance profile connects that role to the host. This gives the SSM agent temporary AWS credentials without storing access keys on the machine.
 
 The operator uses this vulnlab-dev identity. Operator policies are currently configured outside Terraform.
+
+The role also has the vulnlab-ecr-pull inline policy. This allows ECR authentication in us-east-1 and image pulls from the VulnLab repository.
 
 To connect, sign in as vulnlab-dev, select us-east-1, and open
 Systems Manager -> Session Manager -> Start session. Select the project instance. Session Manager provides shell access through the agent's outbound connection. There is no inbound SSH rule or SSH key configured.
@@ -83,6 +87,10 @@ aws ec2 start-instances --instance-ids "$HOST_ID" \
 ```
 
 Read HOST_ID from Terraform again if using a new terminal. The instance may get a different public IPv4 address after starting.
+
+The ECR repository must be emptied before Terraform can delete it because
+force_delete is disabled. Preserve any required images and application
+data before final teardown.
 
 For final teardown (this destroys most essentials including project network, root disk, etc), run:
 
