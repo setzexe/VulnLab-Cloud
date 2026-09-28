@@ -4,7 +4,8 @@
 
 The remediated VulnLab app is deployed to EC2 using Docker Compose. The app responds to its health check.
 
-Deployment is currently manual. Automated deployment is planned for Card 8.
+GitHub Actions now automates application image deployment. Check out [Automated deployment](automated-deployment.md) for the pipeline,
+release evidence, and operating procedure.
 
 ## Design
 
