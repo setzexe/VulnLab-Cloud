@@ -46,7 +46,7 @@ The host retains its existing Compose configuration, Redis image, runtime secret
 
 ## Release evidence
 
-- [Successful workflow run]([docs/project-scope.md](https://github.com/setzexe/VulnLab-Cloud/actions/runs/36361280638))
+- [Successful workflow run](https://github.com/setzexe/VulnLab-Cloud/actions/runs/36361280638)
 - Application source revision: `7c52ea2ef129180cfa671214a918b6e4ba864f9e`
 - Deployed application digest: `sha256:f382a213257e4656ace9c6d79868f2b749d1aee998e49d7e52fa32e284d1e04d`
 - SSM document version: `2`
