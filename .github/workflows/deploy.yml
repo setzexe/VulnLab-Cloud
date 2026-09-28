@@ -1,0 +1,259 @@
+name: Application deployment
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: application-deployment-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  AWS_PAGER: ""
+  ECR_REGISTRY: 492767006448.dkr.ecr.us-east-1.amazonaws.com
+  APP_REV: 7c52ea2ef129180cfa671214a918b6e4ba864f9e
+  DEPLOY_DOCUMENT_VERSION: "2"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build, test, and scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    outputs:
+      image_id: ${{ steps.image.outputs.id }}
+
+    steps:
+      - name: Check out approved application source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: setzexe/VulnLab
+          ref: ${{ env.APP_REV }}
+          persist-credentials: false
+
+      - name: Build the deployment image
+        id: image
+        run: |
+          set -euo pipefail
+
+          test "$(git rev-parse HEAD)" = "$APP_REV"
+
+          docker build \
+            --pull \
+            --platform linux/amd64 \
+            --label "org.opencontainers.image.revision=$APP_REV" \
+            --tag vulnlab:checked \
+            .
+
+          IMAGE_ID=$(docker image inspect vulnlab:checked \
+            --format '{{.Id}}')
+
+          echo "id=$IMAGE_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Run tests inside the deployment image
+        run: |
+          docker run --rm vulnlab:checked \
+            python -m pytest -v -p no:cacheprovider
+
+      - name: Scan deployment image
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        with:
+          version: "v0.69.3"
+          scan-type: image
+          image-ref: vulnlab:checked
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+
+      - name: Save the checked image
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        run: docker save vulnlab:checked --output image.tar
+
+      - name: Transfer image to deployment job
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: checked-application
+          path: image.tar
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
+
+  deploy:
+    name: Publish and deploy
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+
+    permissions:
+      contents: read
+      id-token: write
+
+    env:
+      HOST_ID: ${{ vars.AWS_HOST_INSTANCE_ID }}
+      EXPECTED_IMAGE_ID: ${{ needs.build.outputs.image_id }}
+
+    steps:
+      - name: Receive checked image
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: checked-application
+
+      - name: Load and verify image identity
+        run: |
+          set -euo pipefail
+
+          docker load --input image.tar
+
+          ACTUAL_IMAGE_ID=$(docker image inspect vulnlab:checked \
+            --format '{{.Id}}')
+
+          test "$ACTUAL_IMAGE_ID" = "$EXPECTED_IMAGE_ID"
+
+          SOURCE_REV=$(docker image inspect vulnlab:checked \
+            --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')
+
+          test "$SOURCE_REV" = "$APP_REV"
+
+      - name: Obtain temporary AWS credentials
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+          audience: sts.amazonaws.com
+          allowed-account-ids: "492767006448"
+          role-session-name: github-${{ github.run_id }}-${{ github.run_attempt }}
+          role-duration-seconds: 1800
+          unset-current-credentials: true
+          retry-max-attempts: 2
+
+      - name: Confirm EC2 is available through SSM
+        run: |
+          set -euo pipefail
+
+          [[ "$HOST_ID" =~ ^i-[0-9a-f]+$ ]]
+
+          STATUS=$(aws ssm describe-instance-information \
+            --filters "Key=InstanceIds,Values=$HOST_ID" \
+            --query 'InstanceInformationList[0].PingStatus' \
+            --output text)
+
+          if [[ "$STATUS" != "Online" ]]; then
+            echo "::error::Start EC2 and wait for SSM to report Online."
+            exit 1
+          fi
+
+      - name: Publish the checked image
+        id: publish
+        run: |
+          set -euo pipefail
+
+          trap 'docker logout "$ECR_REGISTRY" >/dev/null 2>&1 || true' EXIT
+
+          aws ecr get-login-password \
+            | docker login \
+                --username AWS \
+                --password-stdin "$ECR_REGISTRY"
+
+          TAG="git-${APP_REV}-run-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          IMAGE="$ECR_REGISTRY/vulnlab:$TAG"
+
+          docker tag vulnlab:checked "$IMAGE"
+          docker push "$IMAGE"
+
+          DIGEST=$(aws ecr describe-images \
+            --repository-name vulnlab \
+            --image-ids "imageTag=$TAG" \
+            --query 'imageDetails[0].imageDigest' \
+            --output text)
+
+          [[ "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]
+
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+
+      - name: Request deployment and verify completion
+        env:
+          IMAGE_DIGEST: ${{ steps.publish.outputs.digest }}
+        run: |
+          set -euo pipefail
+
+          PARAMETERS=$(jq -n \
+            --arg digest "$IMAGE_DIGEST" \
+            '{ImageDigest: [$digest]}')
+
+          COMMAND_ID=$(aws ssm send-command \
+            --document-name vulnlab-deploy \
+            --document-version "$DEPLOY_DOCUMENT_VERSION" \
+            --instance-ids "$HOST_ID" \
+            --parameters "$PARAMETERS" \
+            --timeout-seconds 60 \
+            --comment "GitHub deployment $GITHUB_RUN_ID/$GITHUB_RUN_ATTEMPT" \
+            --query 'Command.CommandId' \
+            --output text)
+
+          {
+            echo "### Deployment request"
+            echo "- Command: $COMMAND_ID"
+            echo "- Host: $HOST_ID"
+            echo "- SSM document version: $DEPLOY_DOCUMENT_VERSION"
+            echo "- Application source: $APP_REV"
+            echo "- Workflow commit: $GITHUB_SHA"
+            echo "- Requested image: $ECR_REGISTRY/vulnlab@$IMAGE_DIGEST"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          for attempt in $(seq 1 90); do
+            if aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "$HOST_ID" \
+              --output json > invocation.json 2> invocation.err; then
+
+              STATUS=$(jq -r '.Status' invocation.json)
+              echo "Deployment status: $STATUS"
+
+              case "$STATUS" in
+                Success)
+                  jq -r '.StandardOutputContent, .StandardErrorContent' \
+                    invocation.json
+
+                  {
+                    echo ""
+                    echo "### Deployment succeeded"
+                    echo "- Deployed image: $ECR_REGISTRY/vulnlab@$IMAGE_DIGEST"
+                    echo "- Container health, HTTP, and Redis checks passed."
+                  } >> "$GITHUB_STEP_SUMMARY"
+
+                  exit 0
+                  ;;
+                Pending|InProgress|Delayed|Cancelling)
+                  ;;
+                *)
+                  jq -r '.Status, .StandardOutputContent, .StandardErrorContent' \
+                    invocation.json
+                  echo "::error::SSM deployment did not succeed."
+                  exit 1
+                  ;;
+              esac
+            else
+              if ! grep -q 'InvocationDoesNotExist' invocation.err; then
+                cat invocation.err
+                exit 1
+              fi
+            fi
+
+            sleep 10
+          done
+
+          echo "::error::Timed out waiting for SSM. Inspect command $COMMAND_ID before retrying."
+          exit 1
