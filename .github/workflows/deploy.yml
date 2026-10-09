@@ -16,7 +16,7 @@ env:
   AWS_REGION: us-east-1
   AWS_PAGER: ""
   ECR_REGISTRY: 492767006448.dkr.ecr.us-east-1.amazonaws.com
-  APP_REV: 7c52ea2ef129180cfa671214a918b6e4ba864f9e
+  APP_REV: 22bc7238cee4a9f9efc15e9dcf9bfcee5ccea6f4
   DEPLOY_DOCUMENT_VERSION: "2"
 
 defaults:
@@ -257,3 +257,5 @@ jobs:
 
           echo "::error::Timed out waiting for SSM. Inspect command $COMMAND_ID before retrying."
           exit 1
+
+          
