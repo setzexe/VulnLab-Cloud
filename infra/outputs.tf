@@ -37,3 +37,13 @@ output "deployment_document_version" {
   description = "Current deployment document version"
   value       = aws_ssm_document.deploy.latest_version
 }
+
+output "application_log_group_name" {
+  description = "CloudWatch log group for application output"
+  value       = aws_cloudwatch_log_group.application.name
+}
+
+output "failed_login_alarm_name" {
+  description = "CloudWatch alarm for repeated failed logins"
+  value       = aws_cloudwatch_metric_alarm.failed_logins.alarm_name
+}
