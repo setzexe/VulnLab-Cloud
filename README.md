@@ -8,3 +8,4 @@ AWS infrastructure, secure deployment, monitoring, and recovery lab for VulnLab
 - [Linux host](docs/host.md)
 - [Manual application deployment](docs/deployment.md)
 - [Security monitoring](docs/monitoring.md)
+- [Security bounds testing](docs/security-boundaries.md)
