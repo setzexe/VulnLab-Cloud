@@ -1,0 +1,7 @@
+# Controlled failure case for the Card 11 rollback test.
+# Based on the known working application image.
+FROM 492767006448.dkr.ecr.us-east-1.amazonaws.com/vulnlab@sha256:fa64de4f4c45d263c28f9a2f7c7423bc1fa10cc35aa38376bb8d2d99bf54af08
+
+USER vulnlab
+
+CMD ["python", "-c", "import time; print('Card 11: intentional unhealthy release', flush=True); time.sleep(3600)"]
