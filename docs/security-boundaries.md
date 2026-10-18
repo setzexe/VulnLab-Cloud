@@ -51,8 +51,7 @@ Ran:
 aws iam list-users --max-items 1 --query 'Users[].UserName' --output json
 ```
 
-AWS returned `AccessDenied` for the same host role, stating that
-no identity based policy allows `iam:ListUsers`. Listing account users is unrelated to running the application. No permissions were added in response to this expected denial.
+AWS returned `AccessDenied` for the same host role, stating that no identity based policy allows `iam:ListUsers`. Listing account users is unrelated to running the application. No permissions were added in response to this expected denial.
 
 Both IAM tests were read only.
 

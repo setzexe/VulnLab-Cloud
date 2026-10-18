@@ -79,13 +79,11 @@ parameterized SQL statement.
 
 Results:
 
-```text
-Restore verified
-Integrity: ok
-Restored notes: 4
-Recovery markers: 1
-User and note records match the backup.
-```
+- Restore verified
+- Integrity: ok
+- Restored notes: 4
+- Recovery markers: 1
+- User and note records match the backup.
 
 The manually timed restore window was 37 seconds which included time
 between commands.
@@ -96,10 +94,6 @@ between commands.
 - These tests cover an unavailable application server and a single
   data deletion case, not every possible failure.
 
-## Follow-up
+## Follow up
 
-- Preserve a verified backup off the host before final teardown.
-- Include recovery evidence in the Card 12 demonstration video.
-- Remove the temporary `VulnLabRecoveryTest` operator policy after
-  the recovery exercise and demonstration work are finished.
-  
+- Completed: exported and verified a database backup off the host. A recovery archive was used to restore the application onto a replacement EC2 host; see [Host rebuild verification](rebuild.md).
