@@ -61,8 +61,7 @@ us-east-1
 aws ec2 describe-vpcs --region us-east-1 --profile vulnlab-dev
 ```
 
-Result: successful response containing an available default VPC with
-CIDR `172.31.0.0/16`.
+Result: successful response containing an available default VPC with CIDR `172.31.0.0/16`.
 
 ### Denied operation
 
@@ -70,8 +69,7 @@ CIDR `172.31.0.0/16`.
 aws iam list-users --profile vulnlab-dev
 ```
 
-Result: `AccessDenied`. No identity based policy allowed
-`iam:ListUsers`. This is the wanted result for the configured permissions.
+Result: `AccessDenied`. No identity based policy allowed `iam:ListUsers`. This is the wanted result for the configured permissions.
 
 ## Cost controls
 
@@ -82,4 +80,4 @@ Result: `AccessDenied`. No identity based policy allowed
 - Monthly reference amount: $5.
 - Cost for email alerts & limits: $1 and $5.
 
-The budget provides notifications but does not enforce a spending cap. Actual spending for the project will remain zero.
+The budget provides notifications but does not enforce a spending cap. Credits may offset eligible usage, but remaining credits, resource usage, and charges must still be monitored.

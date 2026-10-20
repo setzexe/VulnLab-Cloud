@@ -6,9 +6,7 @@ The design itself is planned and kind of already in the process of creation. (Vu
 
 ## Workload
 
-Deploy an identified, reviewed version of the remediated VulnLab
-application. Keep the vulnerable base local only. VulnLab contains application code and tests. This repository contains cloud
-infrastructure, deployment configuration, and operational evidence.
+Deploy an identified, reviewed version of the remediated VulnLab application. Keep the vulnerable base local only. VulnLab contains application code and tests. This repository contains cloud infrastructure, deployment configuration, and operational evidence.
 
 ## Infrastructure
 
@@ -20,8 +18,7 @@ infrastructure, deployment configuration, and operational evidence.
 - Encrypted EBS storage with SQLite data outside the container.
 - Terraform manages the infrastructure. All manual prerequisites are documented.
 
-Proposed outbound connectivity: a public subnet, internet gateway,
-and public IPv4 address. Inbound connections remain blocked.
+Proposed outbound connectivity: a public subnet, internet gateway, and public IPv4 address. Inbound connections remain blocked.
 
 This design should align to the free plan eligibility  and review. We do not want to spend our own funds on this. Public IPv4, compute, storage, and monitoring usage must be included. No NAT gateway, load balancer, or paid interface endpoints are planned.
 
@@ -62,8 +59,7 @@ Registry + runtime secret storage will be selected before implementation.
 - Test a consistent SQLite backup and restore.
 - Keep the recovery backup outside the instance before any destructive tests.
 
-Session Manager port forwarding traffic does not count as session
-content, so it is not naturally recorded. Application logs remain necessary.
+Session Manager port forwarding traffic does not count as session content, so it is not naturally recorded. Application logs remain necessary.
 
 ## Assets
 

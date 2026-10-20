@@ -4,8 +4,7 @@
 
 The remediated VulnLab app is deployed to EC2 using Docker Compose. The app responds to its health check.
 
-GitHub Actions now automates application image deployment. Check out [Automated deployment](automated-deployment.md) for the pipeline,
-release evidence, and operating procedure.
+GitHub Actions now automates application image deployment. Check out [Automated deployment](automated-deployment.md) for the pipeline, release evidence, and operating procedure.
 
 ## Design
 
@@ -13,8 +12,7 @@ Terraform manages the EC2 host, ECR repository, and host permissions. The config
 
 The app image is built for linux/amd64, published to ECR, and selected by digest. ECR uses immutable tags and scan-on-push. The EC2 role can authenticate to ECR and pull images from the VulnLab repository. The app repository permissions do not include pushing or deleting images.
 
-The app publishes port 5000 on the host's loopback. Redis does not have a published host port. Browser access uses Session Manager
-port forwarding; the security group has no inbound rules.
+The app publishes port 5000 on the host's loopback. Redis does not have a published host port. Browser access uses Session Manager port forwarding; the security group has no inbound rules.
 
 The app runs as a non root user.
 
@@ -43,8 +41,7 @@ Published application digest:
 sha256:9245decac1072f8633a3bb41cdfdd0168efaf11ef2f87818bdf94400acede1f9
 ```
 
-The complete app and Redis image references are recorded in
-/opt/vulnlab/release.env.
+The complete app and Redis image references are recorded in /opt/vulnlab/release.env.
 
 ## Verification
 
@@ -79,8 +76,7 @@ aws ssm start-session \
   --region us-east-1
 ```
 
-Keep the session open and visit `http://127.0.0.1:8080`. This requires the Session Manager plugin and permission to use the
-port-forwarding document.
+Keep the session open and visit `http://127.0.0.1:8080`. This requires the Session Manager plugin and permission to use the port-forwarding document.
 
 ## Cost and lifecycle
 

@@ -6,9 +6,7 @@ Deploy our application (VulnLab) to AWS with restricted access, repeatable updat
 
 ## Purpose
 
-Extend VulnLab into a reproducible cloud security and DevSecOps
-case study, demonstrating deployment, access control, detection,
-and recovery.
+Extend VulnLab into a reproducible cloud security and DevSecOps, case study, demonstrating deployment, access control, detection, and recovery.
 
 - [VulnLab Base App]([docs/project-scope.md](https://github.com/setzexe/VulnLab))
 

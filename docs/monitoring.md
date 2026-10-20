@@ -6,11 +6,9 @@ The security monitoring system exists to collect application security events, de
 
 ## Application logs
 
-The application gives structured JSON events for failed logins.
-These events have a timestamp, event name, and outcome. Usernames, passwords, or session tokens are not displayed. Docker forwards application output to the CloudWatch Logs group `/vulnlab/application`.
+The application gives structured JSON events for failed logins. These events have a timestamp, event name, and outcome. Usernames, passwords, or session tokens are not displayed. Docker forwards application output to the CloudWatch Logs group `/vulnlab/application`.
 
-The EC2 host role can create log streams and write events within
-the application log group.
+The EC2 host role can create log streams and write events within the application log group.
 
 ## Failed login detection
 
@@ -56,7 +54,6 @@ The role session connects the AWS request to the specific GitHub Actions run. Th
 
 ## Limitations
 
-The controlled test demonstrates the detection path for failed
-logins. There are no detection features for every other security attack.
+The controlled test demonstrates the detection path for failed logins. There are no detection features for every other security attack.
 
 Events may be lost if delivery is interrupted / the buffer fills.

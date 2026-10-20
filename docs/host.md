@@ -2,15 +2,11 @@
 
 ## Status
 
-Terraform manages the EC2 host in us-east-1. The remediated VulnLab
-application is deployed using Docker Compose.
-
-Check out [Manual application deployment](deployment.md) for the release, verification, access, and persistence details.
+Terraform manages the EC2 host in us-east-1. The remediated VulnLab application is deployed using Docker Compose; check out [Manual application deployment](deployment.md) for the release, verification, access, and persistence details.
 
 ## Design
 
-The host is defined in infra/host.tf and uses the
-network described in Cloud network.
+The host is defined in infra/host.tf and uses the network described in Cloud network.
 
 - Operating system: Amazon Linux 2023, x86_64
 - Instance type: t3.micro
@@ -24,22 +20,19 @@ The initial AMI is selected through AWS's public Amazon Linux SSM parameter. Ter
 
 ## Identity and administration
 
-The vulnlab-host-ssm IAM role trusts EC2 and has the
-AmazonSSMManagedInstanceCore policy attached. The vulnlab-host instance profile connects that role to the host. This gives the SSM agent temporary AWS credentials without storing access keys on the machine.
+The vulnlab-host-ssm IAM role trusts EC2 and has the AmazonSSMManagedInstanceCore policy attached. The vulnlab-host instance profile connects that role to the host. This gives the SSM agent temporary AWS credentials without storing access keys on the machine.
 
 The operator uses this vulnlab-dev identity. Operator policies are currently configured outside Terraform.
 
 The role also has the vulnlab-ecr-pull inline policy. This allows ECR authentication in us-east-1 and image pulls from the VulnLab repository.
 
-To connect, sign in as vulnlab-dev, select us-east-1, and open
-Systems Manager -> Session Manager -> Start session. Select the project instance. Session Manager provides shell access through the agent's outbound connection. There is no inbound SSH rule or SSH key configured.
+To connect, sign in as vulnlab-dev, select us-east-1, and open Systems Manager -> Session Manager -> Start session. Select the project instance. Session Manager provides shell access through the agent's outbound connection. There is no inbound SSH rule or SSH key configured.
 
 ## Verification
 
-The deployment completed with 4 added, 0 changed, 1 destroyed.
-The destroyed resource was a tainted IAM role left by an earlier failed creation attempt. Terraform replaced this during recovery.
+The deployment completed with 4 added, 0 changed, 1 destroyed. The destroyed resource was a tainted IAM role left by an earlier failed creation attempt. Terraform replaced this during recovery.
 
-Run the following from the repository root on the local machine:
+Run the following from the repository root on your local machine:
 
 ```bash
 HOST_ID=$(terraform -chdir=infra output -raw host_instance_id)
@@ -53,7 +46,7 @@ aws ssm describe-instance-information \
 
 Expected status: Online.
 
-Inside the Session Manager terminal:
+Then inside the Session Manager terminal:
 
 ```bash
 whoami
@@ -63,7 +56,7 @@ sudo systemctl is-active amazon-ssm-agent
 
 Expected results: ssm-user, Amazon Linux 2023, and active.
 
-Run `exit` to end the session.
+Enter `exit` to end the session.
 
 ## Cost and lifecycle
 

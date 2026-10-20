@@ -53,13 +53,16 @@ The host retains its existing Compose configuration, Redis image, runtime secret
 
 The running container image reference matched both the workflow summary and `/opt/vulnlab/release.env.`
 
+A following deployment to a replacement EC2 host also succeeded; see [Host rebuild and verification](rebuild.md) for the replacement, restoration, and deployment evidence.
+
 ## Recovery boundaries
 
 If candidate startup or verification fails, the deployment document
 attempts to restore the previous application image. The workflow reports failure even when restoration succeeds.
 
-This recovery path is implemented but has not yet been
-properly tested for failure. It does not restore database contents or reverse schema changes.
+Automatic rollback was tested using an intentionally unhealthy application image. The candidate failed the health check and the previous release was restored. The command properly showed a failed status for the rejected deployment. See [Failure and recovery verification](recovery.md).
+
+Image rollback does not restore database contents or reverseschema changes.
 
 ## Operation
 
