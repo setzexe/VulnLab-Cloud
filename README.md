@@ -12,6 +12,13 @@ Application code and tests exist in VulnLab. This repository has the AWS infrast
 
 Above is a simple showcasing of the VulnLab application, along with the documentation. This was meant to be embeded, but it was discovered that GitHub allows images to be embeded, not videos. The repository itself holds all the information the video provides.
 
+<<<<<<< HEAD
+## Project status
+
+Implementation, verification, and cleanup are complete. The AWS lab resources were torn down after testing. The demonstration video and documentation are meant to preserve the deployment, monitoring, and recovery evidence.
+
+=======
+>>>>>>> origin/main
 ## Architecture
 
 ```mermaid
@@ -98,6 +105,10 @@ This is a single host learning environment using test / fake data.
 - [Security boundaries](docs/security-boundaries.md)
 - [Failure and recovery](docs/recovery.md)
 - [Host rebuild](docs/rebuild.md)
+<<<<<<< HEAD
+- [Cleanup and completion](docs/cleanup.md)
+=======
+>>>>>>> origin/main
 
 For local application setup, see the [VulnLab repository](https://github.com/setzexe/VulnLab).
 
