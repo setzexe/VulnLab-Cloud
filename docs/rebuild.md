@@ -10,7 +10,7 @@ This activity replaced the EC2 instance along with its root disk while retaining
 
 ## Recovery inputs
 
-Before replacement, a consistent SQLite snapshot was created using Python's SQLite backup API. A private recovery archive was found and was transferred to the host device through SSM, verified with SHA-256. This archive contained:
+Before replacement, a consistent SQLite snapshot was created using Python's SQLite backup API. A private recovery archive was created, transferred to the our device through SSM port forwarding, and verified with SHA-256 before replacing the original host. This archive contained:
 
 - compose.yaml
 - release.env
@@ -36,7 +36,7 @@ The archive contains application secret and database records. It remains outside
 5. Created, exported, and verified the recovery archive.
 6. Applied the replacement plan.
 7. Connected to the replacement instance via SSM.
-8. Installed Docker and Docker Compose from Amazon Linux repositories.
+8. Installed Docker from the Amazon Linux repositories and Docker Compose (version 5.5.1) from the official GitHub release, verifying the Compose binary’s SHA-256 checksum.
 9. Uploaded the recovery archive.
 10. Restored the Compose configuration, image references, and runtime secret.
 11. Pulled the application and Redis images in release.env.
