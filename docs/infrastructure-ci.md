@@ -25,7 +25,7 @@ Access the workflow at `.github/workflows/infrastructure.yml`
 - AWS provider: exact version recorded in `infra/.terraform.lock.hcl`.
 - GitHub Actions references are pinned to commit hashes.
 
-## Verification table
+## Tests and verification
 
 | Scenario | Observed result | Evidence |
 | --- | --- | --- |

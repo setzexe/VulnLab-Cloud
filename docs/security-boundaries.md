@@ -14,7 +14,7 @@ Inspected the running instance, every attached security group, Docker port mappi
 - Outbound rules: TCP 443 to 0.0.0.0/0
 - Application host is binded to: 127.0.0.1:5000
 - Redis host has no published host port binding
-- Container health: Application and Redis returned healthy |
+- Container health: Application and Redis returned healthy
 - Application health: /health returned `{"status":"ok"}`
 
 The instance has a public IPv4 address, but its security group allows no inbound connections. Application browser access uses SSM port forwarding. Outbound HTTPS alows any IPv4 destination on TCP 443. The application container listens on port 5000.
