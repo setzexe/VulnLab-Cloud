@@ -84,6 +84,14 @@ The workflow reported successful container, HTTP, and Redis checks. Web verifica
 - Restoring an archive restores its capture time state, but not later changes.
 - Future commands and instances should get the proper instance ID from Terraform outputs rather than reuse historical IDs from evidence.
 
+<<<<<<< HEAD
 ## Completion
 
 The demonstration video was deployed. Project access permissions were removed and the AWS infrastructure was torn down.
+=======
+## Remaining completion work
+
+- Record and publish the demonstration video.
+- Remove the temporary recovery-test operator policy.
+- Tear down project resources and verify cleanup.
+>>>>>>> origin/main
