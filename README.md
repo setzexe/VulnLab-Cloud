@@ -102,10 +102,8 @@ This is a single host learning environment using test / fake data.
 - [Security boundaries](docs/security-boundaries.md)
 - [Failure and recovery](docs/recovery.md)
 - [Host rebuild](docs/rebuild.md)
-<<<<<<< HEAD
 - [Cleanup and completion](docs/cleanup.md)
-=======
->>>>>>> origin/main
+
 
 For local application setup, see the [VulnLab repository](https://github.com/setzexe/VulnLab).
 
